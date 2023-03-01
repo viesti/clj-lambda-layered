@@ -9,7 +9,7 @@ The code in this repository shows how to split a JVM/Clojure project into
 * Lambda with only the handler namespace AOT compiled
 * Layer with the library dependencies
 
-The AWS provided JVM Runtime looks up a handler class, with specific method, so we need to provide such a class.
+The AWS provided JVM Runtime looks up a handler class, with a specific event handler method, so we need to provide such a class.
 
 The trick is to use [requiring-resolve](https://clojuredocs.org/clojure.core/requiring-resolve) in the Lambda handler, to compile only the handler and not all application code, and to [AOT only the handler namespace](https://github.com/viesti/clj-lambda-layered/blob/181c54488f5c39aee9674432b41238fbccc67e60/build.clj#L19).
 
