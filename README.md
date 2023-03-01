@@ -6,8 +6,8 @@ AWS Lambda supports layers, so with a AWS provided JVM Runtime, we can put [libr
 
 The code in this repository shows how to split a JVM/Clojure project into
 
-* Lambda with only the handler class AOT compiled
-* Layer with the application dependencies
+* Lambda with only the handler namespace AOT compiled
+* Layer with the library dependencies
 
 The AWS provided JVM Runtime looks up a handler class, with specific method, so we need to provide such a class.
 
