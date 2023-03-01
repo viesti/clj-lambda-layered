@@ -11,9 +11,9 @@ The code in this repository shows how to split a JVM/Clojure project into
 
 The AWS provided JVM Runtime looks up a handler class, with specific method, so we need to provide such a class.
 
-The trick is to use [requiring-resolve](https://clojuredocs.org/clojure.core/requiring-resolve) in the Lambda handler, to postpone compilation of application code other than the handler, to AOT only the handler class.
+The trick is to use [requiring-resolve](https://clojuredocs.org/clojure.core/requiring-resolve) in the Lambda handler, to compile only the handler and not all application code, and to [AOT only the handler namespace](https://github.com/viesti/clj-lambda-layered/blob/181c54488f5c39aee9674432b41238fbccc67e60/build.clj#L19).
 
-Postponing AOT to first event invocation would make the first invocation slow, but with [AWS Lambda Snapstart](https://aws.amazon.com/blogs/aws/new-accelerate-your-lambda-functions-with-lambda-snapstart/), we can put the compilation to happen at the Snapstart invocation phase.
+Postponing Clojure code to bytecode compilation to happen during the first event handler invocation would make the first invocation slow, but with [AWS Lambda Snapstart](https://aws.amazon.com/blogs/aws/new-accelerate-your-lambda-functions-with-lambda-snapstart/), we can put the compilation to happen at the Snapstart invocation phase.
 
 The code in this example makes the clojure compiler run at checkpoint creation time via [runtime hook](https://docs.aws.amazon.com/lambda/latest/dg/snapstart-runtime-hooks.html):
 
