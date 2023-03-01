@@ -13,9 +13,17 @@ The AWS provided JVM Runtime looks up a handler class, with specific method, so 
 
 The trick is to use [requiring-resolve](https://clojuredocs.org/clojure.core/requiring-resolve) in the Lambda handler, to postpone compilation of application code other than the handler, to AOT only the handler class.
 
-## Further investigation
+Postponing AOT to first event invocation would make the first invocation slow, but with [AWS Lambda Snapstart](https://aws.amazon.com/blogs/aws/new-accelerate-your-lambda-functions-with-lambda-snapstart/), we can put the compilation to happen at the Snapstart invocation phase.
 
-Postponing AOT to first event invocation would make the first invocation slow, but with [AWS Lambda Snapstart](https://aws.amazon.com/blogs/aws/new-accelerate-your-lambda-functions-with-lambda-snapstart/), we could put the compilation to happen at the Snapstart invocation phase.
+The code in this example makes the clojure compiler run at checkpoint creation time via [runtime hook](https://docs.aws.amazon.com/lambda/latest/dg/snapstart-runtime-hooks.html):
+
+```clojure
+(defn -beforeCheckpoint [this context]
+  (println "Before checkpoint")
+  ;; Do stuff here that would result in compiling the clojure application code, so the resulting process state can be checkpointed via Firecracker VM
+  ((requiring-resolve 'layer-demo.core/get-clojure))
+  (println "Before checkpoint done"))
+```
 
 ### Usage
 
