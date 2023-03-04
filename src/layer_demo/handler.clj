@@ -47,6 +47,7 @@
 
 (defn -beforeCheckpoint [this context]
   (println "Before checkpoint")
+  (sideload)
   (requiring-resolve 'layer-demo.core/get-clojure)
   (println "Before checkpoint done"))
 
