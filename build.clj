@@ -1,31 +1,34 @@
 (ns build
   (:require [clojure.tools.build.api :as b]
-            [clojure.java.io :as io]
             [babashka.fs :as fs]))
 
-(def class-dir "target/classes")
 (def basis (b/create-basis {:project "deps.edn"}))
-(def lambda-file "target/lambda.jar")
-
-(def layer-file "target-layer/layer.zip")
-(def layer-zip-dir "target-layer/layer")
 
 (defn lambda [_]
   (b/delete {:path "target"})
-  (b/copy-dir {:src-dirs ["src"]
-               :target-dir class-dir})
+  ;; Leave out source, let sideloader handle
+  #_(b/copy-dir {:src-dirs ["src"]
+               :target-dir "target/classes"})
   (b/compile-clj {:basis basis
                   :src-dirs ["src"]
+                  ;; Compile only handler namespace
                   :ns-compile ['layer-demo.handler]
-                  :class-dir class-dir})
-  (b/jar {:class-dir class-dir
-          :jar-file lambda-file}))
+                  :class-dir "target/classes"})
+  (b/jar {:class-dir "target/classes"
+          :jar-file "target/lambda.jar"}))
 
 (defn layer [_]
   (b/delete {:path "target-layer"})
-  (fs/create-dirs (fs/file layer-zip-dir "java" "lib"))
-  (doseq [[_ {:keys [paths]}] (-> basis :libs)]
-    (doseq [path paths]
-      (fs/copy path (fs/file layer-zip-dir "java" "lib" (fs/file-name path)))))
-  (b/zip {:src-dirs [layer-zip-dir]
-          :zip-file layer-file}))
+  ;; Compile everything in order to get library Clojure code compiled to bytecode
+  (b/compile-clj {:basis basis
+                  :src-dirs ["src"]
+                  :class-dir "target-layer/classes"})
+  (b/uber {:uber-file "target-layer/java/lib/layer.jar"
+           :class-dir "target-layer/classes"
+           :basis basis
+           ;; Exclude application
+           :exclude [#"layer_demo.*"]})
+  (fs/zip "target-layer/layer.zip" "target-layer/java/lib" {:root "target-layer"}))
+
+(defn src [_]
+  (fs/zip "target/src.zip" "src" {:root "src"}))

@@ -4,7 +4,7 @@
         clj-http/clj-http {:mvn/version "3.12.3"}
         io.github.crac/org-crac {:mvn/version "0.1.3"}}
  :aliases
- {:build {:deps {io.github.clojure/tools.build {:git/tag "v0.8.5"
-                                                :git/sha "9c738da"}
-                 babashka/fs {:mvn/version "0.3.17"}}
+ {:build {:extra-deps {io.github.clojure/tools.build {:git/tag "v0.9.3"
+                                                      :git/sha "e537cd1"}
+                       babashka/fs {:mvn/version "0.3.17"}}
           :ns-default build}}}

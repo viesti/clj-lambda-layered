@@ -3,3 +3,5 @@ target
 target-layer
 .nrepl-port
 .rebel_readline_history
+.clj-kondo/.cache
+.lsp/.cache
